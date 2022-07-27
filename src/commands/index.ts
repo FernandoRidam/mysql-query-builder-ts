@@ -22,7 +22,7 @@ export const createSchema = <Schema>( table: string ) => {
   const select = ( ...columns: Array<Columns>) => {
     let query = `SELECT ${ columns.length> 0 ? columns.join(', ') : '*'} FROM ${ table }`;
 
-    const where = ({ column, operation, data }: Condition ) => {
+    const where = ({ column, operation, data }: Condition ) => { // TODO - WHERE recebendo array com prefixo opcional ['AND', '(AND...]
       query = query.concat(` WHERE ${ column as String } ${ operation } ${ data }`);
 
       return {
