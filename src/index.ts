@@ -1,18 +1,18 @@
 import { createSchema } from './commands';
 
-interface Schema {
+interface PersonSchema {
   name: string;
   age: number;
   height: number;
 };
 
-const PersonSchema = createSchema<Schema>('Person');
+const Person = createSchema<PersonSchema>('Person');
 
 console.log('');
 console.log('==== INSERT ====');
 
 console.log(
-  PersonSchema
+  Person
     .insert({
       age: 12,
       name: 'João',
@@ -25,7 +25,7 @@ console.log('');
 console.log('==== SELECT ====');
 
 console.log(
-  PersonSchema
+  Person
     .select()
     .exec()
 );
@@ -34,9 +34,30 @@ console.log('');
 console.log('==== SELECT WITH WHERE/AND/OR ====');
 
 console.log(
-  PersonSchema
+  Person
     .select('age', 'name')
     .where({ column: 'age', operation: '>=', data: 18 })
-    .and({ column: 'height', operation: '>', data: 1.45 })
+    .or({ column: 'height', operation: '>', data: 1.45, priority: 'start' })
+    .and({ column: 'name', operation: '=', data: 'Maria'})
+    .and({ column: 'age', operation: '>=', data: 16, priority: 'end' })
+    .exec()
+);
+
+interface ProductSchema {
+  description: string;
+  weight: number;
+};
+
+const Product = createSchema<ProductSchema>('Product');
+
+console.log('');
+console.log('==== INSERT ====');
+
+console.log(
+  Product
+    .insert({
+      description: 'Pão Francês',
+      weight: 1.0
+    })
     .exec()
 );
