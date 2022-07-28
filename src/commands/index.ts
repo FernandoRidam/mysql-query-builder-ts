@@ -1,6 +1,10 @@
+import { prepareColumns, prepareData, prepareValues } from "../utils";
+
 type Type = String | Number | Date;
 
 type Operation = '=' | '<>' | '<' | '>' | '<=' | '>=' | 'like';
+
+type Priority = 'start' | 'end';
 
 export const createSchema = <Schema>( table: string ) => {
   type Columns = keyof Schema;
@@ -11,8 +15,12 @@ export const createSchema = <Schema>( table: string ) => {
     data: Type;
   };
 
+  interface AndOrCondition extends Condition {
+    priority?: Priority;
+  };
+
   const defaultReturn = ( query: string ) => {
-    const exec = () => query;
+    const exec = () => query.concat(';');
 
     return {
       exec,
@@ -22,34 +30,59 @@ export const createSchema = <Schema>( table: string ) => {
   const select = ( ...columns: Array<Columns>) => {
     let query = `SELECT ${ columns.length> 0 ? columns.join(', ') : '*'} FROM ${ table }`;
 
-    const where = ({ column, operation, data }: Condition ) => { // TODO - WHERE recebendo array com prefixo opcional ['AND', '(AND...]
+    const where = ({ column, operation, data }: Condition ) => {
+      data = prepareData<typeof data>( data );
+
       query = query.concat(` WHERE ${ column as String } ${ operation } ${ data }`);
 
       return {
         ...defaultReturn( query ),
-        where,
         and,
         or,
       };
     };
 
-    const and = ({ column, operation, data }: Condition ) => {
-      query = query.concat(` AND ${ column as String } ${ operation } ${ data }`);
+    const and = ({ column, operation, data, priority }: AndOrCondition ) => {
+      data = prepareData<typeof data>( data );
+
+      const conditionBase = `${ column as String } ${ operation } ${ data }`;
+
+      if( priority ) {
+        if( priority === 'start')
+          query = query.concat(' AND', ' (', ` ${ conditionBase }`);
+
+        if( priority === 'end')
+          query = query.concat(` AND ${ conditionBase }`, ' )');
+
+      } else {
+        query = query.concat(` AND ${ conditionBase }`);
+      }
 
       return {
         ...defaultReturn( query ),
-        where,
         and,
         or,
       };
     };
 
-    const or = ({ column, operation, data }: Condition ) => {
-      query = query.concat(` OR ${ column as String } ${ operation } ${ data }`);
+    const or = ({ column, operation, data, priority }: AndOrCondition ) => {
+      data = prepareData<typeof data>( data );
+
+      const conditionBase = `${ column as String } ${ operation } ${ data }`;
+
+      if( priority ) {
+        if( priority === 'start')
+          query = query.concat(' OR', ' (', ` ${ conditionBase }`);
+
+        if( priority === 'end')
+          query = query.concat(` OR ${ conditionBase }`, ' )');
+
+      } else {
+        query = query.concat(` OR ${ conditionBase }`);
+      }
 
       return {
         ...defaultReturn( query ),
-        where,
         and,
         or,
       };
@@ -62,9 +95,10 @@ export const createSchema = <Schema>( table: string ) => {
   };
 
   const insert = ( params: Schema ) => {
-    const keys: Array<string> = Object.keys( params );
+    const columns = prepareColumns<Schema>( params );
+    const values = prepareValues<Schema>( params );
 
-    let query = `INSERT INTO ${ table } (${ keys.join(', ')}) VALUES (${ keys.map(( key: string ) => params[ key as Columns ]).join(', ')})`;
+    let query = `INSERT INTO ${ table } (${ columns }) VALUES (${ values })`;
 
     return defaultReturn( query );
   };
