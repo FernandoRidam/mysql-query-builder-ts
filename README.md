@@ -2,17 +2,17 @@
 
 ## Data Manipulation
 ### SQL Commands
-- [x] INSERT
+- [ ] INSERT
 - [ ] UPDATE
 - [ ] DELETE
 
 ## Data Query
 ### SQL Commands
-- [x] SELECT
+- [ ] SELECT
 
 ### Clauses
-- [x] FROM
-- [x] WHERE
+- [ ] FROM
+- [ ] WHERE
 - [ ] GROUP BY
 - [ ] HAVING
 - [ ] ORDER BY
@@ -20,18 +20,18 @@
 - [ ] UNION
 
 ### Logical Operators
-- [x] AND
-- [x] OR
+- [ ] AND
+- [ ] OR
 - [ ] NOT
 
 ### Relational Operators
-- [x] EQUAL
-- [x] GREATER THAN
-- [x] LESS THAN
-- [x] GREATER THAN
-- [x] LESS THAN OR EQUAL
-- [x] DIFFERENT THAN
-- [x] LIKE
+- [ ] EQUAL
+- [ ] GREATER THAN
+- [ ] LESS THAN
+- [ ] GREATER THAN
+- [ ] LESS THAN OR EQUAL
+- [ ] DIFFERENT THAN
+- [ ] LIKE
 - [ ] BETWEEN
 - [ ] IN
 
