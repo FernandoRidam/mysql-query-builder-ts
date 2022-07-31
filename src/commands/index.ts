@@ -1,22 +1,24 @@
-import { prepareColumns, prepareData, prepareValues } from "../utils";
+import {
+  Condition,
+  AndOrCondition,
+} from "../types";
 
-type Type = String | Number | Date;
-
-type Operation = '=' | '<>' | '<' | '>' | '<=' | '>=' | 'like';
-
-type Priority = 'start' | 'end';
+import {
+  formatConditionBase,
+  formatConditionWithPriority,
+  prepareColumns,
+  prepareValues
+} from "../utils";
 
 export const createSchema = <Schema>( table: string ) => {
   type Columns = keyof Schema;
 
-  interface Condition {
+  interface LocalCondition extends Omit<Condition, 'column'> {
     column: Columns;
-    operation: Operation;
-    data: Type;
   };
 
-  interface AndOrCondition extends Condition {
-    priority?: Priority;
+  interface LocalAndOrCondition extends Omit<AndOrCondition, 'column'> {
+    column: Columns;
   };
 
   const defaultReturn = ( query: string ) => {
@@ -30,33 +32,14 @@ export const createSchema = <Schema>( table: string ) => {
   const select = ( ...columns: Array<Columns>) => {
     let query = `SELECT ${ columns.length> 0 ? columns.join(', ') : '*'} FROM ${ table }`;
 
-    const where = ({ column, operation, data }: Condition ) => {
-      data = prepareData<typeof data>( data );
+    const where = ({ column, operation, data }: LocalCondition ) => {
+      const conditionBase = formatConditionBase({
+        column,
+        operation,
+        data,
+      });
 
-      query = query.concat(` WHERE ${ column as String } ${ operation } ${ data }`);
-
-      return {
-        ...defaultReturn( query ),
-        and,
-        or,
-      };
-    };
-
-    const and = ({ column, operation, data, priority }: AndOrCondition ) => {
-      data = prepareData<typeof data>( data );
-
-      const conditionBase = `${ column as String } ${ operation } ${ data }`;
-
-      if( priority ) {
-        if( priority === 'start')
-          query = query.concat(' AND', ' (', ` ${ conditionBase }`);
-
-        if( priority === 'end')
-          query = query.concat(` AND ${ conditionBase }`, ' )');
-
-      } else {
-        query = query.concat(` AND ${ conditionBase }`);
-      }
+      query = query.concat(` WHERE ${ conditionBase }`);
 
       return {
         ...defaultReturn( query ),
@@ -65,21 +48,40 @@ export const createSchema = <Schema>( table: string ) => {
       };
     };
 
-    const or = ({ column, operation, data, priority }: AndOrCondition ) => {
-      data = prepareData<typeof data>( data );
+    const and = ({ column, operation, data, priority }: LocalAndOrCondition ) => {
+      const conditionBase = formatConditionBase({
+        column,
+        operation,
+        data,
+      });
 
-      const conditionBase = `${ column as String } ${ operation } ${ data }`;
+      query = formatConditionWithPriority({
+        query,
+        conditionBase,
+        priority,
+        logicalOperation: 'AND',
+      });
 
-      if( priority ) {
-        if( priority === 'start')
-          query = query.concat(' OR', ' (', ` ${ conditionBase }`);
+      return {
+        ...defaultReturn( query ),
+        and,
+        or,
+      };
+    };
 
-        if( priority === 'end')
-          query = query.concat(` OR ${ conditionBase }`, ' )');
+    const or = ({ column, operation, data, priority }: LocalAndOrCondition ) => {
+      const conditionBase = formatConditionBase({
+        column,
+        operation,
+        data,
+      });
 
-      } else {
-        query = query.concat(` OR ${ conditionBase }`);
-      }
+      query = formatConditionWithPriority({
+        query,
+        conditionBase,
+        priority,
+        logicalOperation: 'AND',
+      });
 
       return {
         ...defaultReturn( query ),
