@@ -1,6 +1,9 @@
-import { createSchema } from './commands';
+import {
+  createSchema,
+} from './commands';
 
 interface PersonSchema {
+  id?: number;
   name: string;
   age: number;
   height: number;
@@ -36,10 +39,15 @@ console.log('==== SELECT WITH WHERE/AND/OR ====');
 console.log(
   Person
     .select('age', 'name')
-    .where({ column: 'age', operation: '>=', data: 18 })
-    .or({ column: 'height', operation: '>', data: 1.45, priority: 'start' })
-    .and({ column: 'name', operation: '=', data: 'Maria'})
-    .and({ column: 'age', operation: '>=', data: 16, priority: 'end' })
+    .where({ column: 'name', operation: '=', data: 'Maria'})
+    .and({ column: 'age', operation: 'BETWEEN', data: { rangeStart: 11, rangeEnd: 19, not: true }})
+    .exec()
+);
+
+console.log(
+  Person
+    .select('age', 'name')
+    .where({ column: 'name', operation: 'IN', data: { data: ['Maria', 'João'], not: true }})
     .exec()
 );
 

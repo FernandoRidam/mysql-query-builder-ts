@@ -10,6 +10,11 @@
 ### SQL Commands
 - [x] SELECT
 
+### Join Clauses
+- [ ] INNER JOIN
+- [ ] LEFT JOIN
+- [ ] RIGHT JOIN
+
 ### Clauses
 - [x] FROM
 - [x] WHERE
@@ -32,8 +37,8 @@
 - [x] LESS THAN OR EQUAL
 - [x] DIFFERENT THAN
 - [x] LIKE
-- [ ] BETWEEN
-- [ ] IN
+- [x] BETWEEN
+- [x] IN
 
 ### Aggregation Functions
 - [ ] AVG
