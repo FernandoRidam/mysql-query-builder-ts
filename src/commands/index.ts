@@ -50,6 +50,15 @@ export const createSchema = <Schema>( table: string ) => {
     };
   };
 
+  const del = () => {
+    let query = `DELETE FROM ${ table }`;
+
+    return {
+      ...defaultReturn( query ),
+      ...prepareWhere( query ),
+    };
+  };
+
   const select = ( ...columns: Array<Columns>) => {
     let query = `SELECT ${ columns.length> 0 ? columns.join(', ') : '*'} FROM ${ table }`;
 
@@ -138,6 +147,7 @@ export const createSchema = <Schema>( table: string ) => {
   return {
     insert,
     update,
+    delete: del,
     select,
   };
 };

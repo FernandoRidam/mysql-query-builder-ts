@@ -4,7 +4,7 @@
 ### SQL Commands
 - [x] INSERT
 - [x] UPDATE
-- [ ] DELETE
+- [x] DELETE
 
 ## Data Query
 ### SQL Commands

@@ -37,6 +37,16 @@ console.log(
 );
 
 console.log('');
+console.log('==== DELETE ====');
+
+console.log(
+  Person
+    .delete()
+    .where({ column: 'id', operation: '=', data: 1 })
+    .exec()
+);
+
+console.log('');
 console.log('==== SELECT ====');
 
 console.log(
