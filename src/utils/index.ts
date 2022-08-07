@@ -33,6 +33,20 @@ export const prepareValues = <Schema>( params: Schema ) => {
     .join(', ');
 };
 
+export const prepareColumnsWithValues = <Schema>( params: Partial<Schema> ) => {
+  type Columns = keyof Schema;
+
+  const keys: Array<string> = Object.keys( params );
+
+  return keys
+    .map(( key: string ) => {
+      let data = params[ key as Columns ];
+
+      return `${ key } = ${ prepareData<typeof data>( data )}`;
+    })
+    .join(', ');
+};
+
 export const formatConditionWithPriority = ({ logicalOperation, priority, conditionBase, query }: QueryCondition ) => {
   if( priority ) {
     switch ( priority ) {

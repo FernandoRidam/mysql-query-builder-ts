@@ -7,6 +7,7 @@ import {
   formatConditionBase,
   formatConditionWithPriority,
   prepareColumns,
+  prepareColumnsWithValues,
   prepareValues
 } from "../utils";
 
@@ -29,9 +30,36 @@ export const createSchema = <Schema>( table: string ) => {
     };
   };
 
+  const insert = ( params: Schema ) => {
+    const columns = prepareColumns<Schema>( params );
+    const values = prepareValues<Schema>( params );
+
+    let query = `INSERT INTO ${ table } (${ columns }) VALUES (${ values })`;
+
+    return defaultReturn( query );
+  };
+
+  const update = ( params: Partial<Schema> ) => {
+    const values = prepareColumnsWithValues<Schema>( params );
+
+    let query = `UPDATE ${ table } SET ${ values }`;
+
+    return {
+      ...defaultReturn( query ),
+      ...prepareWhere( query ),
+    };
+  };
+
   const select = ( ...columns: Array<Columns>) => {
     let query = `SELECT ${ columns.length> 0 ? columns.join(', ') : '*'} FROM ${ table }`;
 
+    return {
+      ...defaultReturn( query ),
+      ...prepareWhere( query ),
+    };
+  };
+
+  const prepareWhere = ( query: string ) => {
     const where = ({ column, operation, data }: LocalCondition ) => {
       const conditionBase = formatConditionBase({
         column,
@@ -43,11 +71,17 @@ export const createSchema = <Schema>( table: string ) => {
 
       return {
         ...defaultReturn( query ),
-        and,
-        or,
+        ...prepareOr( query ),
+        ...prepareAnd( query ),
       };
     };
 
+    return {
+      where,
+    };
+  };
+
+  const prepareAnd = ( query: string ) => {
     const and = ({ column, operation, data, priority }: LocalAndOrCondition ) => {
       const conditionBase = formatConditionBase({
         column,
@@ -64,11 +98,17 @@ export const createSchema = <Schema>( table: string ) => {
 
       return {
         ...defaultReturn( query ),
+        ...prepareOr( query ),
         and,
-        or,
       };
     };
 
+    return {
+      and,
+    };
+  };
+
+  const prepareOr = ( query: string ) => {
     const or = ({ column, operation, data, priority }: LocalAndOrCondition ) => {
       const conditionBase = formatConditionBase({
         column,
@@ -85,28 +125,19 @@ export const createSchema = <Schema>( table: string ) => {
 
       return {
         ...defaultReturn( query ),
-        and,
+        ...prepareAnd( query ),
         or,
       };
     };
 
     return {
-      ...defaultReturn( query ),
-      where,
+      or,
     };
   };
 
-  const insert = ( params: Schema ) => {
-    const columns = prepareColumns<Schema>( params );
-    const values = prepareValues<Schema>( params );
-
-    let query = `INSERT INTO ${ table } (${ columns }) VALUES (${ values })`;
-
-    return defaultReturn( query );
-  };
-
   return {
-    select,
     insert,
+    update,
+    select,
   };
 };

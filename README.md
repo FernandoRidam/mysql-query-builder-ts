@@ -3,7 +3,7 @@
 ## Data Manipulation
 ### SQL Commands
 - [x] INSERT
-- [ ] UPDATE
+- [x] UPDATE
 - [ ] DELETE
 
 ## Data Query
