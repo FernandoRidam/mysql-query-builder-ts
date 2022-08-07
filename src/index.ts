@@ -25,6 +25,18 @@ console.log(
 );
 
 console.log('');
+console.log('==== UPDATE ====');
+
+console.log(
+  Person
+    .update({
+      height: 1.65,
+    })
+    .where({ column: 'id', operation: '=', data: 1 })
+    .exec()
+);
+
+console.log('');
 console.log('==== SELECT ====');
 
 console.log(
