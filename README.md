@@ -27,7 +27,7 @@
 ### Logical Operators
 - [x] AND
 - [x] OR
-- [x] NOT
+- [ ] NOT
 
 ### Relational Operators
 - [x] EQUAL
