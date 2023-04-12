@@ -1,0 +1,1 @@
+export type TableType = 'Person' | 'Product' | 'User' | 'Message';

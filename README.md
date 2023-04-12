@@ -11,9 +11,9 @@
 - [x] SELECT
 
 ### Join Clauses
-- [ ] INNER JOIN
-- [ ] LEFT JOIN
-- [ ] RIGHT JOIN
+- [x] INNER JOIN
+- [x] LEFT JOIN
+- [x] RIGHT JOIN
 
 ### Clauses
 - [x] FROM
@@ -27,7 +27,7 @@
 ### Logical Operators
 - [x] AND
 - [x] OR
-- [ ] NOT
+- [x] NOT
 
 ### Relational Operators
 - [x] EQUAL
