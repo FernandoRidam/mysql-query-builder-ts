@@ -16,7 +16,7 @@ import {
 } from "../utils";
 
 export const prepareCommands = <TableSchema, Columns, TableType>( database: string, table: TableType ) => {
-  interface AsParams {
+  interface AsParams<Columns> {
     column: Columns;
     as: string;
   };
@@ -103,7 +103,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
   };
 
   interface JoinReturn<T> {
-    select: ( ...args: Array<Columns | T>) => SelectReturnJoin<T>;
+    select: ( ...args: Array<Columns | T | AsParams<Columns | T>>) => SelectReturnJoin<T>;
   };
 
   interface SelectReturn extends DefaultReturn {
@@ -118,7 +118,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     insert: ( ...args: TableSchema[]) => InsertReturn;
     update: ( ...args: any[]) => UpdateReturn;
     delete: () => DeleteReturn;
-    select: ( ...args: Array<Columns | AsParams>) => SelectReturn;
+    select: ( ...args: Array<Columns | AsParams<Columns>>) => SelectReturn;
     join: <T>( join: Join<T>) => JoinReturn<T>
     name: TableType;
   };
@@ -166,7 +166,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
       };
     };
 
-    const select = ( ...columns: Array<Columns | AsParams>): SelectReturn => {
+    const select = ( ...columns: Array<Columns | AsParams<Columns>>): SelectReturn => {
       let query = `SELECT ${ columns.length > 0 ? columns.map(( column ) => {
         if( !!column ) {
           switch (typeof column) {
@@ -174,7 +174,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
               return column;
 
             case 'object':
-              let current: AsParams = column as AsParams;
+              let current: AsParams<Columns> = column as AsParams<Columns>;
               return `${ String( current.column )} as ${ current.as }`;
 
             default:
@@ -190,8 +190,22 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareSelectJoin = <T>( join: string ) => {
-      const select = ( ...columns: Array<Columns | T>): SelectReturnJoin<T> => {
-        let query = `SELECT ${ columns.length> 0 ? columns.join(', ') : '*'} FROM  ${ database }.${ table }${ join }`;
+      const select = ( ...columns: Array<Columns | T | AsParams<Columns | T>>): SelectReturnJoin<T> => {
+        let query = `SELECT ${ columns.length> 0 ? columns.map(( column ) => {
+          if( !!column ) {
+            switch (typeof column) {
+              case 'string':
+                return column;
+
+              case 'object':
+                let current: AsParams<Columns | T> = column as AsParams<Columns | T>;
+                return `${ String( current.column )} as ${ current.as }`;
+
+              default:
+                return column;
+            }
+          }
+        }).join(', ') : '*'} FROM  ${ database }.${ table }${ join }`;
 
         return {
           ...defaultReturn( query ),
