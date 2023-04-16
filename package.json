@@ -1,15 +1,19 @@
 {
-  "name": "query-builder",
-  "version": "1.0.0",
-  "description": "",
-  "main" : "dist/index.js",
-  "types" : "dist/index.d.ts",
+  "name": "mysql-query-builder-ts",
+  "version": "0.0.1",
+  "description": "MySQL Query Builder with Typescript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-      "build": "tsc --declaration",
-    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify src/index.ts"
+    "build": "tsc --declaration",
+    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify src/test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+"
   },
   "keywords": [],
-  "author": "",
+  "author": "Fernando Ridam",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.6.1",
