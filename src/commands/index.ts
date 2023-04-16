@@ -16,7 +16,10 @@ import {
 } from "../utils";
 
 export const prepareCommands = <TableSchema, Columns, TableType>( database: string, table: TableType ) => {
-
+  interface AsParams {
+    column: Columns;
+    as: string;
+  };
 
   interface Condition {
     column: Columns;
@@ -115,7 +118,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     insert: ( ...args: TableSchema[]) => InsertReturn;
     update: ( ...args: any[]) => UpdateReturn;
     delete: () => DeleteReturn;
-    select: ( ...args: Columns[]) => SelectReturn;
+    select: ( ...args: Array<Columns | AsParams>) => SelectReturn;
     join: <T>( join: Join<T>) => JoinReturn<T>
     name: TableType;
   };
@@ -163,8 +166,22 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
       };
     };
 
-    const select = ( ...columns: Array<Columns>): SelectReturn => {
-      let query = `SELECT ${ columns.length> 0 ? columns.join(', ') : '*'} FROM  ${ database }.${ table }`;
+    const select = ( ...columns: Array<Columns | AsParams>): SelectReturn => {
+      let query = `SELECT ${ columns.length > 0 ? columns.map(( column ) => {
+        if( !!column ) {
+          switch (typeof column) {
+            case 'string':
+              return column;
+
+            case 'object':
+              let current: AsParams = column as AsParams;
+              return `${ String( current.column )} as ${ current.as }`;
+
+            default:
+              return column;
+          }
+        }
+      }).join(', ') : '*'} FROM  ${ database }.${ table }`;
 
       return {
         ...defaultReturn( query ),
@@ -310,7 +327,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
           query,
           conditionBase,
           priority,
-          logicalOperator: 'AND',
+          logicalOperator: 'OR',
         });
 
         return {
@@ -337,7 +354,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
           query,
           conditionBase,
           priority,
-          logicalOperator: 'AND',
+          logicalOperator: 'OR',
         });
 
         return {

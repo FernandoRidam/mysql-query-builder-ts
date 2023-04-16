@@ -1,1 +1,1 @@
-export type TableType = 'Person' | 'Product' | 'User' | 'Message';
+export type TableType = 'User' | 'Message';

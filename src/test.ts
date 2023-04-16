@@ -47,9 +47,33 @@ Models.User
   .select('User.id', 'User.nickname', 'Message.id', 'Message.user_id', 'Message.message')
   .where({
     column: 'User.nickname',
-    operator: '=',
-    data: 'João'
+    operator: 'IN',
+    data: {
+      data: ['João', 'Maria'],
+      not: true,
+    }
   })
+  .and({
+    column: 'User.nickname',
+    operator: '=',
+    data: 1,
+    priority: 'START'
+  })
+  .and({
+    column: 'User.nickname',
+    operator: '=',
+    data: 1,
+    priority: 'END'
+  })
+  .or({
+    column: 'User.nickname',
+    operator: '=',
+    data: 1,
+  })
+  .exec()
+
+  Models.User
+  .select('User.id', 'User.nickname', { column: 'User.id', as: 'userId' })
   .exec()
 
 // testeDatabase.table('Person', {

@@ -131,7 +131,7 @@ const createAndUpdateTablesSchema = async ( name: string, table: string, tableSc
 
     const keys = Object.keys( tableSchema );
 
-    const tableSchemaContent = `import { prepareCommands } from '../commands';\n\nimport { TableType } from '../@types/tables';\n\nconst database = '${ name }';\nconst table = '${ table }';\n\nexport interface Schema${ table } {\n${
+    const tableSchemaContent = `import { prepareCommands } from '../commands';\n\nimport { TableType } from '../@types/tables';\n\nimport { AsParams } from '../types';\n\const database = '${ name }';\nconst table = '${ table }';\n\nexport interface Schema${ table } {\n${
       keys
       .map(( column: string ) => `  ${ column }: ${ tableSchema[ column ]};`)
       .join(`\n`)
