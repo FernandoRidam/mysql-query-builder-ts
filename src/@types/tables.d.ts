@@ -1,1 +1,1 @@
-export type TableType = 'User' | 'Message';
+export type TableType = '';
