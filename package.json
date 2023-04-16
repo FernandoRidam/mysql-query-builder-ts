@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+"
+    "url": "git+https://github.com/FernandoRidam/mysql-query-builder-ts.git"
   },
   "keywords": [],
   "author": "Fernando Ridam",
