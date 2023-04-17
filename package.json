@@ -1,6 +1,6 @@
 {
   "name": "mysql-query-builder-ts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "MySQL Query Builder with Typescript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
