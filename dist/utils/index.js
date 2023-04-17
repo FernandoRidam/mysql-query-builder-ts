@@ -96,7 +96,7 @@ const createAndUpdateTablesSchema = async (name, table, tableSchema) => {
     const tables = fs_1.default.readFileSync(pathModelsIndex).toString();
     let newExportTableSchema;
     if (!tables.includes(`export * from './${table}';`)) {
-        if (tables) {
+        if (tables.replace('export default null;', '') !== '') {
             newExportTableSchema = `${tables}\nexport * from './${table}';`;
         }
         else

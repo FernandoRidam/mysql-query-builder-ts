@@ -1,4 +1,3 @@
-import { QueryCondition, TableSchema } from "../types";
 export declare const prepareData: <Type>(data: Type) => any;
 export declare const prepareColumns: <Schema>(params: Schema) => string;
 export declare const prepareValues: <Schema>(params: Schema) => string;

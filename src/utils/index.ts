@@ -1,14 +1,6 @@
 import fs from "fs";
 import path from "path";
 
-import {
-  BetweenData,
-  InData,
-  LikeData,
-  QueryCondition,
-  TableSchema,
-} from "../types";
-
 export const prepareData = <Type>( data: Type ): any => {
   if( typeof data === 'string')
     return `'${ data }'`;
@@ -125,13 +117,13 @@ const createAndUpdateTablesSchema = async ( name: string, table: string, tableSc
   let newExportTableSchema: string;
 
   if( !tables.includes(`export * from './${ table }';`)) {
-    if( tables ) {
+    if( tables.replace('export default null;', '') !== '') {
       newExportTableSchema = `${ tables }\nexport * from './${ table }';`;
     } else newExportTableSchema = `export * from './${ table }';`;
 
     const keys = Object.keys( tableSchema );
 
-    const tableSchemaContent = `import { prepareCommands } from '../commands';\n\nimport { TableType } from '../@types/tables';\n\nimport { AsParams } from '../types';\n\const database = '${ name }';\nconst table = '${ table }';\n\nexport interface Schema${ table } {\n${
+    const tableSchemaContent = `import { prepareCommands } from '../commands';\n\nimport { TableType } from '../@types/tables';\n\nconst database = '${ name }';\nconst table = '${ table }';\n\nexport interface Schema${ table } {\n${
       keys
       .map(( column: string ) => `  ${ column }: ${ tableSchema[ column ]};`)
       .join(`\n`)
@@ -145,19 +137,6 @@ const createAndUpdateTablesSchema = async ( name: string, table: string, tableSc
 
     fs.writeFileSync( pathModelsIndex, newExportTableSchema );
   }
-
-  // let newListTables: string;
-
-  // if( !tables.includes( table )) {
-  //   if( tables !== `''`) newListTables = `${ tables } | '${ table }'`;
-  //   else newListTables = `'${ table }'`;
-
-  //   const newFileContent = `export type TableType = ${ newListTables };`;
-
-  //   fs.unlinkSync( baseTypeFiles );
-
-  //   fs.writeFileSync( baseTypeFiles, newFileContent );
-  // }
 };
 
 const formatConditionBetween = ({ column, operator, data }: any ) => {

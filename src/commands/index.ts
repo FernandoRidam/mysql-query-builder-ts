@@ -1,11 +1,4 @@
-import { TableType } from "../@types/tables";
-import {
-  RelationalOperator,
-  ConditionData,
-  Priority,
-  TypeJoin,
-  Exec,
-} from "../types";
+
 
 import {
   formatConditionBase,
@@ -16,114 +9,7 @@ import {
 } from "../utils";
 
 export const prepareCommands = <TableSchema, Columns, TableType>( database: string, table: TableType ) => {
-  interface AsParams<Columns> {
-    column: Columns;
-    as: string;
-  };
-
-  interface Condition {
-    column: Columns;
-    operator: RelationalOperator;
-    data: ConditionData;
-  };
-
-  interface ConditionJoin<T> {
-    column: Columns | T;
-    operator: RelationalOperator;
-    data: ConditionData;
-  };
-
-  interface AndOrCondition {
-    column: Columns;
-    operator: RelationalOperator;
-    data: ConditionData;
-    priority?: Priority;
-  };
-
-  interface AndOrConditionJoin<T> {
-    column: Columns | T;
-    operator: RelationalOperator;
-    data: ConditionData;
-    priority?: Priority;
-  };
-
-  interface Join<T> {
-    type: TypeJoin;
-    leftColumn: T;
-    table: string;
-    rightColumn: Columns;
-  };
-
-  interface DefaultReturn {
-    exec: Exec;
-  };
-
-  interface InsertReturn extends DefaultReturn {};
-
-  interface OrReturn extends DefaultReturn {
-    or: ( condition: AndOrCondition ) => OrReturn;
-    and: ( condition: AndOrCondition ) => AndReturn;
-  };
-
-  interface OrReturnJoin<T> extends DefaultReturn {
-    or: ( condition: AndOrCondition ) => OrReturn;
-    and: ( condition: AndOrCondition ) => AndReturn;
-  };
-
-  interface AndReturn extends DefaultReturn {
-    or: ( condition: AndOrCondition ) => OrReturn;
-    and: ( condition: AndOrCondition ) => AndReturn;
-  };
-
-  interface AndReturnJoin<T> extends DefaultReturn {
-    or: ( condition: AndOrCondition ) => OrReturnJoin<T>;
-    and: ( condition: AndOrCondition ) => AndReturnJoin<T>;
-  };
-
-  interface WhereReturn extends DefaultReturn {
-    or: ( condition: AndOrCondition ) => OrReturn;
-    and: ( condition: AndOrCondition ) => AndReturn;
-  };
-
-  interface WhereReturnJoin<T> extends DefaultReturn {
-    or: ( condition: AndOrConditionJoin<T> ) => OrReturnJoin<T>;
-    and: ( condition: AndOrConditionJoin<T> ) => AndReturnJoin<T>;
-  };
-
-  interface UpdateReturn {
-    where: ( condition: Condition ) => WhereReturn;
-  };
-
-  interface DeleteReturn extends DefaultReturn {
-    where: ( condition: Condition ) => WhereReturn;
-  };
-
-  interface OnReturn extends DefaultReturn {
-    where: ( condition: Condition ) => WhereReturn;
-  };
-
-  interface JoinReturn<T> {
-    select: ( ...args: Array<Columns | T | AsParams<Columns | T>>) => SelectReturnJoin<T>;
-  };
-
-  interface SelectReturn extends DefaultReturn {
-    where: ( condition: Condition ) => WhereReturn;
-  };
-
-  interface SelectReturnJoin<T> extends DefaultReturn {
-    where: ( condition: ConditionJoin<T> ) => WhereReturnJoin<T>;
-  };
-
-  interface Table {
-    insert: ( ...args: TableSchema[]) => InsertReturn;
-    update: ( ...args: any[]) => UpdateReturn;
-    delete: () => DeleteReturn;
-    select: ( ...args: Array<Columns | AsParams<Columns>>) => SelectReturn;
-    join: <T>( join: Join<T>) => JoinReturn<T>
-    name: TableType;
-  };
-
-  const commands = (): Table => {
+  const commands = (): Table<TableSchema, Columns, TableType> => {
     const defaultReturn = ( query: string ) => {
       const exec = (): string => {
         query = query.concat(';');
@@ -190,7 +76,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareSelectJoin = <T>( join: string ) => {
-      const select = ( ...columns: Array<Columns | T | AsParams<Columns | T>>): SelectReturnJoin<T> => {
+      const select = ( ...columns: Array<Columns | T | AsParams<Columns | T>>): SelectReturnJoin<Columns, T> => {
         let query = `SELECT ${ columns.length> 0 ? columns.map(( column ) => {
           if( !!column ) {
             switch (typeof column) {
@@ -223,8 +109,8 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
       table: _table,
       leftColumn,
       rightColumn,
-    }: Join<T> ): JoinReturn<T> => {
-      const query = ` ${ type } JOIN ${ database }.${ _table } ON ${ database }.${ leftColumn as string } = ${ database }.${ rightColumn as string }`;
+    }: Join<Columns, T> ): JoinReturn<Columns, T> => {
+      const query = ` ${ type } JOIN ${ database }.${ _table } ON ${ database }.${ String( leftColumn )} = ${ database }.${ String( rightColumn )}`;
 
       return {
         ...prepareSelectJoin<T>( query ),
@@ -232,7 +118,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareWhere = ( query: string ) => {
-      const where = ({ column, operator, data }: Condition ): WhereReturn => {
+      const where = ({ column, operator, data }: Condition<Columns> ): WhereReturn => {
         const conditionBase = formatConditionBase({
           column,
           operator,
@@ -254,7 +140,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareWhereJoin = <T>( query: string ) => {
-      const where = ({ column, operator, data }: ConditionJoin<T> ): WhereReturnJoin<T> => {
+      const where = ({ column, operator, data }: ConditionJoin<Columns, T> ): WhereReturnJoin<Columns, T> => {
         const conditionBase = formatConditionBase({
           column,
           operator,
@@ -276,7 +162,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareAnd = ( query: string ) => {
-      const and = ({ column, operator, data, priority }: AndOrCondition ): AndReturn => {
+      const and = ({ column, operator, data, priority }: AndOrCondition<Columns> ): AndReturn => {
         const conditionBase = formatConditionBase({
           column,
           operator,
@@ -303,7 +189,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareAndJoin = <T>( query: string ) => {
-      const and = ({ column, operator, data, priority }: AndOrConditionJoin<T> ): AndReturnJoin<T> => {
+      const and = ({ column, operator, data, priority }: AndOrConditionJoin<Columns, T> ): AndReturnJoin<Columns, T> => {
         const conditionBase = formatConditionBase({
           column,
           operator,
@@ -319,7 +205,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
 
         return {
           ...defaultReturn( query ),
-          ...prepareOr( query ),
+          ...prepareOrJoin( query ),
           and,
         };
       };
@@ -330,7 +216,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareOr = ( query: string ) => {
-      const or = ({ column, operator, data, priority }: AndOrCondition ): OrReturn => {
+      const or = ({ column, operator, data, priority }: AndOrCondition<Columns> ): OrReturn<Columns> => {
         const conditionBase = formatConditionBase({
           column,
           operator,
@@ -357,7 +243,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareOrJoin = <T>( query: string ) => {
-      const or = ({ column, operator, data, priority }: AndOrConditionJoin<T> ): OrReturnJoin<T> => {
+      const or = ({ column, operator, data, priority }: AndOrConditionJoin<Columns, T> ): OrReturnJoin<Columns, T> => {
         const conditionBase = formatConditionBase({
           column,
           operator,
@@ -373,7 +259,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
 
         return {
           ...defaultReturn( query ),
-          ...prepareAnd( query ),
+          ...prepareAndJoin( query ),
           or,
         };
       };
