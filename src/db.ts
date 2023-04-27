@@ -1,4 +1,8 @@
 import {
+  TableSchema,
+} from './types';
+
+import {
   createAndUpdateTypeFiles,
 } from './utils';
 

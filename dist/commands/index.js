@@ -23,11 +23,16 @@ const prepareCommands = (database, table) => {
         const update = (params) => {
             const values = (0, utils_1.prepareColumnsWithValues)(params);
             let query = `UPDATE  ${database}.${table} SET ${values}`;
-            return Object.assign({}, prepareWhere(query));
+            return {
+                ...prepareWhere(query),
+            };
         };
         const del = () => {
             let query = `DELETE FROM  ${database}.${table}`;
-            return Object.assign(Object.assign({}, defaultReturn(query)), prepareWhere(query));
+            return {
+                ...defaultReturn(query),
+                ...prepareWhere(query),
+            };
         };
         const select = (...columns) => {
             let query = `SELECT ${columns.length > 0 ? columns.map((column) => {
@@ -43,7 +48,10 @@ const prepareCommands = (database, table) => {
                     }
                 }
             }).join(', ') : '*'} FROM  ${database}.${table}`;
-            return Object.assign(Object.assign({}, defaultReturn(query)), prepareWhere(query));
+            return {
+                ...defaultReturn(query),
+                ...prepareWhere(query),
+            };
         };
         const prepareSelectJoin = (join) => {
             const select = (...columns) => {
@@ -60,7 +68,10 @@ const prepareCommands = (database, table) => {
                         }
                     }
                 }).join(', ') : '*'} FROM  ${database}.${table}${join}`;
-                return Object.assign(Object.assign({}, defaultReturn(query)), prepareWhereJoin(query));
+                return {
+                    ...defaultReturn(query),
+                    ...prepareWhereJoin(query),
+                };
             };
             return {
                 select,
@@ -68,7 +79,9 @@ const prepareCommands = (database, table) => {
         };
         const join = ({ type, table: _table, leftColumn, rightColumn, }) => {
             const query = ` ${type} JOIN ${database}.${_table} ON ${database}.${String(leftColumn)} = ${database}.${String(rightColumn)}`;
-            return Object.assign({}, prepareSelectJoin(query));
+            return {
+                ...prepareSelectJoin(query),
+            };
         };
         const prepareWhere = (query) => {
             const where = ({ column, operator, data }) => {
@@ -78,7 +91,11 @@ const prepareCommands = (database, table) => {
                     data,
                 });
                 query = query.concat(` WHERE ${conditionBase}`);
-                return Object.assign(Object.assign(Object.assign({}, defaultReturn(query)), prepareOr(query)), prepareAnd(query));
+                return {
+                    ...defaultReturn(query),
+                    ...prepareOr(query),
+                    ...prepareAnd(query),
+                };
             };
             return {
                 where,
@@ -92,7 +109,11 @@ const prepareCommands = (database, table) => {
                     data,
                 });
                 query = query.concat(` WHERE ${conditionBase}`);
-                return Object.assign(Object.assign(Object.assign({}, defaultReturn(query)), prepareOrJoin(query)), prepareAndJoin(query));
+                return {
+                    ...defaultReturn(query),
+                    ...prepareOrJoin(query),
+                    ...prepareAndJoin(query),
+                };
             };
             return {
                 where,
@@ -111,7 +132,11 @@ const prepareCommands = (database, table) => {
                     priority,
                     logicalOperator: 'AND',
                 });
-                return Object.assign(Object.assign(Object.assign({}, defaultReturn(query)), prepareOr(query)), { and });
+                return {
+                    ...defaultReturn(query),
+                    ...prepareOr(query),
+                    and,
+                };
             };
             return {
                 and,
@@ -130,7 +155,11 @@ const prepareCommands = (database, table) => {
                     priority,
                     logicalOperator: 'AND',
                 });
-                return Object.assign(Object.assign(Object.assign({}, defaultReturn(query)), prepareOrJoin(query)), { and });
+                return {
+                    ...defaultReturn(query),
+                    ...prepareOrJoin(query),
+                    and,
+                };
             };
             return {
                 and,
@@ -149,7 +178,11 @@ const prepareCommands = (database, table) => {
                     priority,
                     logicalOperator: 'OR',
                 });
-                return Object.assign(Object.assign(Object.assign({}, defaultReturn(query)), prepareAnd(query)), { or });
+                return {
+                    ...defaultReturn(query),
+                    ...prepareAnd(query),
+                    or,
+                };
             };
             return {
                 or,
@@ -168,7 +201,11 @@ const prepareCommands = (database, table) => {
                     priority,
                     logicalOperator: 'OR',
                 });
-                return Object.assign(Object.assign(Object.assign({}, defaultReturn(query)), prepareAndJoin(query)), { or });
+                return {
+                    ...defaultReturn(query),
+                    ...prepareAndJoin(query),
+                    or,
+                };
             };
             return {
                 or,

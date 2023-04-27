@@ -1,6 +1,13 @@
 import fs from "fs";
 import path from "path";
 
+import {
+  BetweenData,
+  InData,
+  LikeData,
+  QueryCondition, TableSchema,
+} from "../types";
+
 export const prepareData = <Type>( data: Type ): any => {
   if( typeof data === 'string')
     return `'${ data }'`;
@@ -87,10 +94,10 @@ export const createAndUpdateTypeFiles = async ( name: string, table: string, tab
 };
 
 const createAndUpdateTablesType = async ( table: string ) => {
-  const pathTablesTypeFile = path.resolve(`${ __dirname }/../@types/tables.d.ts`);
+  const pathTablesTypeFile = path.resolve(`${ __dirname }/../types/tables.d.ts`);
 
   const tables = fs.readFileSync( pathTablesTypeFile ).toString()
-    .replace('export type TableType = ', '')
+    .replace('export declare type TableType = ', '')
     .replace(';', '')
     .trim();
 
@@ -100,7 +107,7 @@ const createAndUpdateTablesType = async ( table: string ) => {
       if( tables !== `''`) newListTables = `${ tables } | '${ table }'`;
       else newListTables = `'${ table }'`;
 
-      const newFileContent = `export type TableType = ${ newListTables };`;
+      const newFileContent = `export declare type TableType = ${ newListTables };`;
 
       fs.unlinkSync( pathTablesTypeFile );
 
@@ -110,32 +117,70 @@ const createAndUpdateTablesType = async ( table: string ) => {
 
 const createAndUpdateTablesSchema = async ( name: string, table: string, tableSchema: TableSchema ) => {
   const pathModels = path.resolve(`${ __dirname }/../models`);
-  const pathModelsIndex = path.resolve(`${ pathModels }/index.ts`);
+  const pathModelsIndexTs = path.resolve(`${ pathModels }/index.d.ts`);
+  const pathModelsIndexJs = path.resolve(`${ pathModels }/index.js`);
 
-  const tables = fs.readFileSync( pathModelsIndex ).toString();
+  const tablesTs = fs.readFileSync( pathModelsIndexTs ).toString();
+  const tablesJs = fs.readFileSync( pathModelsIndexJs ).toString();
 
-  let newExportTableSchema: string;
+  let newExportTableSchemaTs: string;
+  let newExportTableSchemaJs: string;
 
-  if( !tables.includes(`export * from './${ table }';`)) {
-    if( tables.replace('export default null;', '') !== '') {
-      newExportTableSchema = `${ tables }\nexport * from './${ table }';`;
-    } else newExportTableSchema = `export * from './${ table }';`;
+  if( !tablesTs.includes(`export * from './${ table }';`) && !tablesJs.includes(`__exportStar(require("./${ table }"), exports);`)) {
+    if( !tablesTs.includes('declare const _default: null;')) {
+      newExportTableSchemaTs = `${ tablesTs }\nexport * from './${ table }';`;
+    } else {
+      newExportTableSchemaTs = `export * from './${ table }';`;
+    }
+
+    if( !tablesJs.includes(`exports.default = null;`)) {
+      newExportTableSchemaJs = `${ tablesJs }\n__exportStar(require("./${ table }"), exports);`;
+    } else {
+      newExportTableSchemaJs = `"use strict";
+      var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+          if (k2 === undefined) k2 = k;
+          var desc = Object.getOwnPropertyDescriptor(m, k);
+          if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+            desc = { enumerable: true, get: function() { return m[k]; } };
+          }
+          Object.defineProperty(o, k2, desc);
+      }) : (function(o, m, k, k2) {
+          if (k2 === undefined) k2 = k;
+          o[k2] = m[k];
+      }));
+      var __exportStar = (this && this.__exportStar) || function(m, exports) {
+          for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+      };
+      Object.defineProperty(exports, "__esModule", { value: true });\n__exportStar(require("./${ table }"), exports);`;
+    }
 
     const keys = Object.keys( tableSchema );
 
-    const tableSchemaContent = `import { prepareCommands } from '../commands';\n\nimport { TableType } from '../@types/tables';\n\nconst database = '${ name }';\nconst table = '${ table }';\n\nexport interface Schema${ table } {\n${
+    const tableSchemaContentTs = `export interface Schema${ table } {\n${
       keys
       .map(( column: string ) => `  ${ column }: ${ tableSchema[ column ]};`)
       .join(`\n`)
-    }\n};\n\nexport type ${ table }Columns = ${
+    }\n};\n\export declare type ${ table }Columns = ${
       keys.map(( column: string ) => `'${ table }.${ column }'`).join(` | `)
-    };\n\nexport const ${ table } = prepareCommands<Schema${ table }, ${ table }Columns, TableType>( database, table as TableType )();`;
+    };\n\export declare const ${ table }: import("../types/global").Table<Schema${ table }, ${ table }Columns, "">;`;
 
-    fs.writeFileSync( path.resolve(`${ pathModels }/${ table }.ts`), tableSchemaContent );
+    const tableSchemaContentJs = `"use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.${ table } = void 0;
+      const commands_1 = require("../commands");
+      const database = '${ name }';
+      const table = '${ table }';
+      ;
+      exports.${ table } = (0, commands_1.prepareCommands)(database, table)();`;
 
-    fs.unlinkSync( pathModelsIndex );
+    fs.writeFileSync( path.resolve(`${ pathModels }/${ table }.d.ts`), tableSchemaContentTs );
+    fs.writeFileSync( path.resolve(`${ pathModels }/${ table }.js`), tableSchemaContentJs );
 
-    fs.writeFileSync( pathModelsIndex, newExportTableSchema );
+    fs.unlinkSync( pathModelsIndexTs );
+    fs.writeFileSync( pathModelsIndexTs, newExportTableSchemaTs );
+
+    fs.unlinkSync( pathModelsIndexJs );
+    fs.writeFileSync( pathModelsIndexJs, newExportTableSchemaJs );
   }
 };
 

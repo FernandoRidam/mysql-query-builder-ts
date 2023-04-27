@@ -1,3 +1,5 @@
 node_modules
 /src/test.ts
 /src/models/*
+!/src/models/index.js
+!/src/models/index.d.ts

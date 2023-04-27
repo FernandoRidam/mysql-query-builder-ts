@@ -1,5 +1,3 @@
-
-
 import {
   formatConditionBase,
   formatConditionWithPriority,
@@ -7,6 +5,28 @@ import {
   prepareColumnsWithValues,
   prepareValues
 } from "../utils";
+
+import {
+  AndOrCondition,
+  AndOrConditionJoin,
+  AndReturn,
+  AndReturnJoin,
+  AsParams,
+  Condition,
+  ConditionJoin,
+  DeleteReturn,
+  InsertReturn,
+  Join,
+  JoinReturn,
+  OrReturn,
+  OrReturnJoin,
+  SelectReturn,
+  SelectReturnJoin,
+  Table,
+  UpdateReturn,
+  WhereReturn,
+  WhereReturnJoin,
+} from '../types/global';
 
 export const prepareCommands = <TableSchema, Columns, TableType>( database: string, table: TableType ) => {
   const commands = (): Table<TableSchema, Columns, TableType> => {
@@ -33,7 +53,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
       return defaultReturn( query );
     };
 
-    const update = ( params: Partial<TableSchema> ): UpdateReturn => {
+    const update = ( params: Partial<TableSchema> ): UpdateReturn<Columns> => {
       const values = prepareColumnsWithValues<TableSchema>( params );
 
       let query = `UPDATE  ${ database }.${ table } SET ${ values }`;
@@ -43,7 +63,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
       };
     };
 
-    const del = (): DeleteReturn => {
+    const del = (): DeleteReturn<Columns> => {
       let query = `DELETE FROM  ${ database }.${ table }`;
 
       return {
@@ -52,7 +72,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
       };
     };
 
-    const select = ( ...columns: Array<Columns | AsParams<Columns>>): SelectReturn => {
+    const select = ( ...columns: Array<Columns | AsParams<Columns>>): SelectReturn<Columns> => {
       let query = `SELECT ${ columns.length > 0 ? columns.map(( column ) => {
         if( !!column ) {
           switch (typeof column) {
@@ -118,7 +138,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareWhere = ( query: string ) => {
-      const where = ({ column, operator, data }: Condition<Columns> ): WhereReturn => {
+      const where = ({ column, operator, data }: Condition<Columns> ): WhereReturn<Columns> => {
         const conditionBase = formatConditionBase({
           column,
           operator,
@@ -162,7 +182,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const prepareAnd = ( query: string ) => {
-      const and = ({ column, operator, data, priority }: AndOrCondition<Columns> ): AndReturn => {
+      const and = ({ column, operator, data, priority }: AndOrCondition<Columns> ): AndReturn<Columns> => {
         const conditionBase = formatConditionBase({
           column,
           operator,
