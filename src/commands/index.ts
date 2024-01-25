@@ -56,7 +56,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     const update = ( params: Partial<TableSchema> ): UpdateReturn<Columns> => {
       const values = prepareColumnsWithValues<TableSchema>( params );
 
-      let query = `UPDATE  ${ database }.${ table } SET ${ values }`;
+      let query = `UPDATE ${ database }.${ table } SET ${ values }`;
 
       return {
         ...prepareWhere( query ),
@@ -64,7 +64,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
     };
 
     const del = (): DeleteReturn<Columns> => {
-      let query = `DELETE FROM  ${ database }.${ table }`;
+      let query = `DELETE FROM ${ database }.${ table }`;
 
       return {
         ...defaultReturn( query ),
@@ -87,7 +87,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
               return column;
           }
         }
-      }).join(', ') : '*'} FROM  ${ database }.${ table }`;
+      }).join(', ') : '*'} FROM ${ database }.${ table }`;
 
       return {
         ...defaultReturn( query ),
@@ -111,7 +111,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
                 return column;
             }
           }
-        }).join(', ') : '*'} FROM  ${ database }.${ table }${ join }`;
+        }).join(', ') : '*'} FROM ${ database }.${ table }${ join }`;
 
         return {
           ...defaultReturn( query ),

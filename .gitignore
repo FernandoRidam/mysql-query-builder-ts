@@ -3,3 +3,8 @@ node_modules
 /src/models/*
 !/src/models/index.js
 !/src/models/index.d.ts
+
+/dist/test.ts
+/dist/models/*
+!/dist/models/index.js
+!/dist/models/index.d.ts

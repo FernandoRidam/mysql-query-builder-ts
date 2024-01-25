@@ -22,13 +22,13 @@ const prepareCommands = (database, table) => {
         };
         const update = (params) => {
             const values = (0, utils_1.prepareColumnsWithValues)(params);
-            let query = `UPDATE  ${database}.${table} SET ${values}`;
+            let query = `UPDATE ${database}.${table} SET ${values}`;
             return {
                 ...prepareWhere(query),
             };
         };
         const del = () => {
-            let query = `DELETE FROM  ${database}.${table}`;
+            let query = `DELETE FROM ${database}.${table}`;
             return {
                 ...defaultReturn(query),
                 ...prepareWhere(query),
@@ -47,7 +47,7 @@ const prepareCommands = (database, table) => {
                             return column;
                     }
                 }
-            }).join(', ') : '*'} FROM  ${database}.${table}`;
+            }).join(', ') : '*'} FROM ${database}.${table}`;
             return {
                 ...defaultReturn(query),
                 ...prepareWhere(query),
@@ -67,7 +67,7 @@ const prepareCommands = (database, table) => {
                                 return column;
                         }
                     }
-                }).join(', ') : '*'} FROM  ${database}.${table}${join}`;
+                }).join(', ') : '*'} FROM ${database}.${table}${join}`;
                 return {
                     ...defaultReturn(query),
                     ...prepareWhereJoin(query),
