@@ -64,14 +64,14 @@ dbname.table('Rating', {
   - All attributes
     ```javascript
     // SELECT * FROM dbname.User;
-    User
+    Models.User
       .select()
       .exec();
     ```
   - Only attributes
     ```javascript
     // SELECT User.name FROM dbname.User;
-    User
+    Models.User
       .select('User.name')
       .exec();
     ```
