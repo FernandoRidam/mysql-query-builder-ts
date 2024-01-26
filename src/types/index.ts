@@ -12,7 +12,7 @@ export type TypeJoin = 'INNER' | 'LEFT' | 'RIGHT';
 
 export type Exec = () => string;
 
-export type Types = 'string' | 'number' | 'date';
+export type Types = 'string' | 'number' | 'date' | 'pk_auto_increment' | 'pk' | 'fk';
 
 export interface TableSchema {
   [ key: string ]: Types;

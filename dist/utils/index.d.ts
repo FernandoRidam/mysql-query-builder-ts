@@ -1,4 +1,5 @@
-import { QueryCondition, TableSchema } from "../types";
+import { QueryCondition, TableSchema, Types } from "../types";
+export declare const prepareDataForTheSpecialType: (type: Types) => "string" | "number" | "date" | "number | string";
 export declare const prepareData: <Type>(data: Type) => any;
 export declare const prepareColumns: <Schema>(params: Schema) => string;
 export declare const prepareValues: <Schema>(params: Schema) => string;

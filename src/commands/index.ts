@@ -34,7 +34,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
       const exec = (): string => {
         query = query.concat(';');
 
-        console.log(query);
+        console.log("Query => ", query);
 
         return query;
       };
@@ -53,7 +53,7 @@ export const prepareCommands = <TableSchema, Columns, TableType>( database: stri
       return defaultReturn( query );
     };
 
-    const update = ( params: Partial<TableSchema> ): UpdateReturn<Columns> => {
+    const update = ( params: Partial<TableSchema>): UpdateReturn<Columns> => {
       const values = prepareColumnsWithValues<TableSchema>( params );
 
       let query = `UPDATE ${ database }.${ table } SET ${ values }`;

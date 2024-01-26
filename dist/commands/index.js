@@ -7,7 +7,7 @@ const prepareCommands = (database, table) => {
         const defaultReturn = (query) => {
             const exec = () => {
                 query = query.concat(';');
-                console.log(query);
+                console.log("Query => ", query);
                 return query;
             };
             return {

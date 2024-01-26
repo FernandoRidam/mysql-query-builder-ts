@@ -12,7 +12,7 @@ export type TypeJoin = 'INNER' | 'LEFT' | 'RIGHT';
 
 export type Exec = () => string;
 
-export type Types = 'string' | 'number' | 'date';
+export type Types = 'string' | 'number' | 'date' | 'pk_auto_increment' | 'pk' | 'fk';
 
 export interface TableSchema {
   [ key: string ]: Types;
@@ -146,7 +146,7 @@ export interface SelectReturnJoin<Columns, T> extends DefaultReturn {
 
 export interface Table<TableSchema, Columns, TableType> {
   insert: ( ...args: TableSchema[]) => InsertReturn;
-  update: ( ...args: any[]) => UpdateReturn<Columns>;
+  update: ( ...args: Partial<TableSchema>[]) => UpdateReturn<Columns>;
   delete: () => DeleteReturn<Columns>;
   select: ( ...args: Array<Columns | AsParams<Columns>>) => SelectReturn<Columns>;
   join: <T>( join: Join<Columns, T>) => JoinReturn<Columns, T>

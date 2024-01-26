@@ -5,7 +5,7 @@ export declare type Priority = 'START' | 'END';
 export declare type LikeOperator = 'STARTS' | 'ENDS' | 'CONTAINS';
 export declare type TypeJoin = 'INNER' | 'LEFT' | 'RIGHT';
 export declare type Exec = () => string;
-export declare type Types = 'string' | 'number' | 'date';
+export declare type Types = 'string' | 'number' | 'date' | 'pk_auto_increment' | 'pk' | 'fk';
 export interface TableSchema {
     [key: string]: Types;
 }

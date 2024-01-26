@@ -3,9 +3,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAndUpdateTypeFiles = exports.formatConditionBase = exports.formatConditionWithPriority = exports.prepareColumnsWithValues = exports.prepareValues = exports.prepareColumns = exports.prepareData = void 0;
+exports.createAndUpdateTypeFiles = exports.formatConditionBase = exports.formatConditionWithPriority = exports.prepareColumnsWithValues = exports.prepareValues = exports.prepareColumns = exports.prepareData = exports.prepareDataForTheSpecialType = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const prepareDataForTheSpecialType = (type) => {
+    switch (type) {
+        case "pk_auto_increment":
+            return 'number';
+        case "pk":
+        case "fk":
+            return 'number | string';
+        default:
+            return type;
+    }
+};
+exports.prepareDataForTheSpecialType = prepareDataForTheSpecialType;
 const prepareData = (data) => {
     if (typeof data === 'string')
         return `'${data}'`;
@@ -128,7 +140,8 @@ const createAndUpdateTablesSchema = async (name, table, tableSchema) => {
         }
         const keys = Object.keys(tableSchema);
         const tableSchemaContentTs = `export interface Schema${table} {\n${keys
-            .map((column) => `  ${column}: ${tableSchema[column]};`)
+            .filter((key) => tableSchema[key] !== 'pk_auto_increment')
+            .map((column) => `  ${column}: ${(0, exports.prepareDataForTheSpecialType)(tableSchema[column])};`)
             .join(`\n`)}\n};\n\export declare type ${table}Columns = ${keys.map((column) => `'${table}.${column}'`).join(` | `)};\n\export declare const ${table}: import("../types/global").Table<Schema${table}, ${table}Columns, "">;`;
         const tableSchemaContentJs = `"use strict";
       Object.defineProperty(exports, "__esModule", { value: true });

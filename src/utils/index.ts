@@ -5,8 +5,22 @@ import {
   BetweenData,
   InData,
   LikeData,
-  QueryCondition, TableSchema,
+  QueryCondition,
+  TableSchema,
+  Types,
 } from "../types";
+
+export const prepareDataForTheSpecialType = (type: Types) => {
+  switch(type) {
+    case "pk_auto_increment":
+      return 'number';
+    case "pk":
+    case "fk":
+      return 'number | string';
+    default:
+      return type;
+  }
+};
 
 export const prepareData = <Type>( data: Type ): any => {
   if( typeof data === 'string')
@@ -158,7 +172,8 @@ const createAndUpdateTablesSchema = async ( name: string, table: string, tableSc
 
     const tableSchemaContentTs = `export interface Schema${ table } {\n${
       keys
-      .map(( column: string ) => `  ${ column }: ${ tableSchema[ column ]};`)
+      .filter((key) => tableSchema[key] !== 'pk_auto_increment')
+      .map(( column: string ) => `  ${ column }: ${ prepareDataForTheSpecialType(tableSchema[ column ])};`)
       .join(`\n`)
     }\n};\n\export declare type ${ table }Columns = ${
       keys.map(( column: string ) => `'${ table }.${ column }'`).join(` | `)

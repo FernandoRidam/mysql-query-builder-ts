@@ -1,40 +1,59 @@
 # Query Builder
 
+## Create Reference Database
+```javascript
+const dbname = Database('dbname');
+```
+
+## Create Table Schema
+```javascript
+dbname.table('User', {
+  code: 'pk',
+  name: 'string',
+});
+
+dbname.table('Rating', {
+  id: 'pk_auto_increment',
+  user_code: 'fk',
+  note: 'number',
+});
+```
+
 ## Data Manipulation
 ### SQL Commands
 - [x] INSERT
   ```javascript
-  // INSERT INTO dbname.User (name) VALUES ('Jhon');
-  User
+  // INSERT INTO dbname.User (code, name) VALUES ('1234', 'Jhon');
+  Models.User
     .insert({
-      name: 'Jhon',
+      code: '1234',
+      name: 'Jhon'
     })
     .exec();
   ```
 - [x] UPDATE
   ```javascript
-  // UPDATE dbname.User SET name = 'Jhon' WHERE User.id = 1;
-  User
+  // UPDATE dbname.User SET name = 'Zoe' WHERE User.code = '1234';
+  Models.User
     .update({
-      id: 1,
-      name: 'Jhon',
+      name: 'Zoe',
     })
     .where({
-      column: 'User.id',
+      column: 'User.code',
       operator: '=',
-      data: 1
+      data: '1234'
     })
     .exec();
   ```
 - [x] DELETE
   ```javascript
-  // DELETE FROM dbname.User WHERE User.id = 1;
-  User
+  // DELETE FROM dbname.User WHERE User.code = '1234';
+  Models.User
     .delete()
     .where({
-      column: 'User.id',
+      column: 'User.code',
       operator: '=',
-      data: 1
+      data: '1234'
     })
     .exec();
   ```
@@ -59,19 +78,55 @@
 
 ### Join Clauses
 - [x] INNER JOIN
+  ```javascript
+  // SELECT * FROM dbname.Rating INNER JOIN dbname.User ON dbname.User.code = dbname.Rating.user_code;
+  Models.Rating
+    .join<Models.UserColumns>({
+      type: 'INNER',
+      table: Models.User.name,
+      leftColumn: 'User.code',
+      rightColumn: 'Rating.user_code'
+    })
+    .select()
+    .exec();
+  ```
 - [x] LEFT JOIN
+  ```javascript
+  // SELECT * FROM dbname.Rating LEFT JOIN dbname.User ON dbname.User.code = dbname.Rating.user_code;
+  Models.Rating
+    .join<Models.UserColumns>({
+      type: 'LEFT',
+      table: Models.User.name,
+      leftColumn: 'User.code',
+      rightColumn: 'Rating.user_code'
+    })
+    .select()
+    .exec();
+  ```
 - [x] RIGHT JOIN
+  ```javascript
+  // SELECT * FROM dbname.Rating RIGHT JOIN dbname.User ON dbname.User.code = dbname.Rating.user_code;
+  Models.Rating
+    .join<Models.UserColumns>({
+      type: 'RIGHT',
+      table: Models.User.name,
+      leftColumn: 'User.code',
+      rightColumn: 'Rating.user_code'
+    })
+    .select()
+    .exec();
+  ```
 
 ### Clauses
 - [x] WHERE
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1;
-  User
+  // SELECT * FROM dbname.User WHERE User.code = '1234';
+  Models.User
     .select()
     .where({
-      column: 'User.id',
+      column: 'User.code',
       operator: '=',
-      data: 1
+      data: '1234',
     })
     .exec();
   ```
@@ -84,75 +139,77 @@
 ### Logical Operators
 - [x] AND
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1 AND User.name = 'Jhon';
-  User
+  // SELECT * FROM dbname.User WHERE User.code = '1234' AND User.name = 'Jhon';
+  Models.User
     .select()
     .where({
-      column: 'User.id',
+      column: 'User.code',
       operator: '=',
-      data: 1,
-    }).and({
+      data: '1234',
+    })
+    .and({
       column: 'User.name',
       operator: '=',
       data: 'Jhon',
     })
     .exec();
 
-  // SELECT * FROM dbname.User WHERE User.id = 1 AND ( User.name = 'Jhon' OR User.name = 'Lorem' );
-  User
+  // SELECT * FROM dbname.User WHERE User.code = '1234' AND ( User.name = 'Jhon' OR User.name = 'Zoe' );
+  Models.User
     .select()
     .where({
-      column: 'User.id',
+      column: 'User.code',
       operator: '=',
-      data: 1,
-    }).and({
+      data: '1234',
+    })
+    .and({
       column: 'User.name',
       operator: '=',
       data: 'Jhon',
-      priority: 'START'
-    })
-    .or({
+      priority: 'START',
+    }).or({
       column: 'User.name',
       operator: '=',
-      data: 'Lorem',
-      priority: 'END'
+      data: 'Zoe',
+      priority: 'END',
     })
     .exec();
   ```
 - [x] OR
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1 OR User.name = 'Jhon';
-  User
+  // SELECT * FROM dbname.User WHERE User.code = '1234' OR User.name = 'Jhon';
+  Models.User
     .select()
     .where({
-      column: 'User.id',
+      column: 'User.code',
       operator: '=',
-      data: 1,
-    }).or({
+      data: '1234',
+    })
+    .or({
       column: 'User.name',
       operator: '=',
       data: 'Jhon',
     })
     .exec();
 
-  // SELECT * FROM dbname.User WHERE User.id = 1 OR ( User.name = 'Jhon' AND User.name = 'Lorem' );
-  User
+  // SELECT * FROM dbname.User WHERE User.code = '1234' OR ( User.name = 'Jhon' AND User.name = 'Zoe' );
+  Models.User
     .select()
     .where({
-      column: 'User.id',
+      column: 'User.code',
       operator: '=',
-      data: 1,
-    }).or({
+      data: '1234',
+    })
+    .or({
       column: 'User.name',
       operator: '=',
       data: 'Jhon',
-      priority: 'START'
-    })
-    .and({
+      priority: 'START',
+    }).and({
       column: 'User.name',
       operator: '=',
-      data: 'Lorem',
-      priority: 'END'
+      data: 'Zoe',
+      priority: 'END',
     })
     .exec();
   ```
@@ -161,80 +218,80 @@
 ### Relational Operators
 - [x] EQUAL
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1;
-  User
+  // SELECT * FROM dbname.User WHERE Rating.note = 1;
+  Models.Rating
     .select()
     .where({
-      column: 'User.id',
+      column: 'Rating.note',
       operator: '=', // Equal Operator
-      data: 1
+      data: 1,
     })
     .exec();
   ```
 - [x] GREATER THAN
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1;
-  User
+  // SELECT * FROM dbname.User WHERE Rating.note > 1;
+  Models.Rating
     .select()
     .where({
-      column: 'User.id',
+      column: 'Rating.note',
       operator: '>', // Greater Than operator
-      data: 1
+      data: 1,
     })
     .exec();
   ```
 - [x] LESS THAN
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1;
-  User
+  // SELECT * FROM dbname.User WHERE Rating.note < 1;
+  Models.Rating
     .select()
     .where({
-      column: 'User.id',
+      column: 'Rating.note',
       operator: '<', // Less Than operator
-      data: 1
+      data: 1,
     })
     .exec();
   ```
 - [x] GREATER THAN OR EQUAL
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1;
-  User
+  // SELECT * FROM dbname.User WHERE Rating.note >= 1;
+  Models.Rating
     .select()
     .where({
-      column: 'User.id',
+      column: 'Rating.note',
       operator: '>=', // Greater Than Or Equal operator
-      data: 1
+      data: 1,
     })
     .exec();
   ```
 - [x] LESS THAN OR EQUAL
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1;
-  User
+  // SELECT * FROM dbname.User WHERE Rating.note <= 1;
+  Models.Rating
     .select()
     .where({
-      column: 'User.id',
+      column: 'Rating.note',
       operator: '<=', // Less Than Or Equal operator
-      data: 1
+      data: 1,
     })
     .exec();
   ```
 - [x] DIFFERENT THAN
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id = 1;
-  User
+  // SELECT * FROM dbname.User WHERE Rating.note <> 1;
+  Models.Rating
     .select()
     .where({
-      column: 'User.id',
+      column: 'Rating.note',
       operator: '<>', // Different Than operator
-      data: 1
+      data: 1,
     })
     .exec();
   ```
 - [x] LIKE
   ```javascript
   // SELECT * FROM dbname.User WHERE User.name LIKE 'Jh%';
-  User
+  Models.User
     .select()
     .where({
       column: 'User.name',
@@ -249,30 +306,30 @@
   ```
 - [x] BETWEEN
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id BETWEEN 1 AND 10;
-  User
+  // SELECT * FROM dbname.Rating WHERE Rating.note BETWEEN 3 AND 5;
+  Models.Rating
     .select()
     .where({
-      column: 'User.id',
+      column: 'Rating.note',
       operator: 'BETWEEN',
       data: {
-        rangeStart: 1,
-        rangeEnd: 10,
+        rangeStart: 3,
+        rangeEnd: 5,
         not: false,
-      }
+      },
     })
     .exec();
   ```
 - [x] IN
   ```javascript
-  // SELECT * FROM dbname.User WHERE User.id IN (1, 2, 5);
-  User
+  // SELECT * FROM dbname.User WHERE User.name IN ('Jhon', 'Zoe');
+  Models.User
     .select()
     .where({
-      column: 'User.id',
+      column: 'User.name',
       operator: 'IN',
       data: {
-        data: [1, 2, 5],
+        data: ['Jhon', 'Zoe'],
         not: false,
       }
     })
