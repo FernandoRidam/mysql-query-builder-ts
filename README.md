@@ -344,4 +344,4 @@ dbname.table('Rating', {
 - [ ] MIN
 
 # License
-is licensed under the MIT license. [MIT](https://github.com/FernandoRidam/mysql-query-builder-ts/blob/master/LICENSE)
+mysql-query-builder-ts is licensed under the MIT license. [MIT](https://github.com/FernandoRidam/mysql-query-builder-ts/blob/master/LICENSE)
