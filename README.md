@@ -342,3 +342,6 @@ dbname.table('Rating', {
 - [ ] SUM
 - [ ] MAX
 - [ ] MIN
+
+# License
+is licensed under the MIT license. [MIT](https://github.com/FernandoRidam/mysql-query-builder-ts/blob/master/LICENSE)
